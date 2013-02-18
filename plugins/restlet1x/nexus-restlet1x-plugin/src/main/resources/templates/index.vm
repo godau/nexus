@@ -53,7 +53,7 @@
         });
 
         var initUI = function(require, files) {
-            require(['require', 'extjs', 'Nexus/ui', 'Sonatype/all'], function(require, Ext, Nexus, Sonatype) {
+            require(['require', 'extjs', 'Nexus/ui'], function(require, Ext, Nexus, Sonatype) {
                 var
                         all = files.length;
                         loaded = 0;
