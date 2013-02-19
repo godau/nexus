@@ -23,9 +23,13 @@ import java.util.Properties;
 import org.sonatype.nexus.logging.AbstractLoggingComponent;
 
 /**
+ * Base class for UI contribution builders
  *
+ * @see UiContributionBuilder
+ * @see IndexHtmlSnippetBuilder
+ * @since 2.4
  */
-public abstract class UiSnippetBuilder<T>
+public abstract class AbstractUiContributionBuilder<T>
     extends AbstractLoggingComponent
 {
 
@@ -37,7 +41,7 @@ public abstract class UiSnippetBuilder<T>
 
     protected String encoding = "UTF-8";
 
-    public UiSnippetBuilder( final Object owner, final String groupId, final String artifactId )
+    public AbstractUiContributionBuilder( final Object owner, final String groupId, final String artifactId )
     {
         this.owner = checkNotNull( owner );
         this.groupId = checkNotNull( groupId );
