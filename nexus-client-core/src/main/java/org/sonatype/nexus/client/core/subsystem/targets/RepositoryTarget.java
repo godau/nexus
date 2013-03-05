@@ -12,6 +12,8 @@
  */
 package org.sonatype.nexus.client.core.subsystem.targets;
 
+import java.util.List;
+
 import org.sonatype.nexus.client.core.subsystem.Entity;
 
 /**
@@ -21,4 +23,17 @@ public interface RepositoryTarget
     extends Entity<RepositoryTarget>
 {
 
+    String name();
+
+    String contentClass();
+
+    List<String> patterns();
+
+    RepositoryTarget withName( String name );
+
+    RepositoryTarget withContentClass( String cls );
+
+    RepositoryTarget withPatterns( String... patterns );
+
+    RepositoryTarget addPattern( String pattern );
 }

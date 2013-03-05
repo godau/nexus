@@ -20,6 +20,7 @@ import static org.hamcrest.Matchers.notNullValue;
 
 import java.util.Collection;
 
+import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.sonatype.nexus.client.core.subsystem.security.Privileges;
 import org.sonatype.nexus.client.core.subsystem.security.Role;
@@ -43,6 +44,16 @@ public class RepositoryTargetsIT
     {
         final Collection<RepositoryTarget> targets = targets().get();
         assertThat( targets, is( not( empty() ) ) );
+    }
+
+    @Test
+    public void getTarget()
+    {
+        final RepositoryTarget target = targets().get().iterator().next();
+        final RepositoryTarget direct = targets().get( target.id() );
+        assertThat( direct.id(), is( target.id() ) );
+        assertThat( direct.name(), is( target.name() ) );
+        assertThat( direct.contentClass(), is( target.contentClass() ) );
     }
 
     /*

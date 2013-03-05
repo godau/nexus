@@ -146,4 +146,49 @@ public class JerseyRepositoryTarget
         }
     }
 
+    @Override
+    public String name()
+    {
+        return settings().getName();
+    }
+
+    @Override
+    public String contentClass()
+    {
+        return settings().getContentClass();
+    }
+
+    @Override
+    public List<String> patterns()
+    {
+        return settings().getPatterns();
+    }
+
+    @Override
+    public RepositoryTarget withName( final String name )
+    {
+        settings().setName( name );
+        return this;
+    }
+
+    @Override
+    public RepositoryTarget withContentClass( final String cls )
+    {
+        settings().setContentClass( cls );
+        return this;
+    }
+
+    @Override
+    public RepositoryTarget withPatterns( final String... patterns )
+    {
+        settings().setPatterns( Lists.newArrayList( patterns ) );
+        return this;
+    }
+
+    @Override
+    public RepositoryTarget addPattern( final String pattern )
+    {
+        settings().addPattern( pattern );
+        return this;
+    }
 }
