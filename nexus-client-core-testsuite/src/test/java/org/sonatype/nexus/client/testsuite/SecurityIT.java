@@ -21,6 +21,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import java.util.Collection;
 
 import org.junit.Test;
+import org.sonatype.nexus.client.core.subsystem.security.Privileges;
 import org.sonatype.nexus.client.core.subsystem.security.Role;
 import org.sonatype.nexus.client.core.subsystem.security.Roles;
 import org.sonatype.nexus.client.core.subsystem.security.User;
@@ -172,6 +173,17 @@ public class SecurityIT
         assertThat( user.id(), is( "admin" ) );
     }
 
+    @Test
+    public void getPrivileges()
+    {
+        privileges().create()
+            .withName( "foo" )
+            .withDescription( "bar" )
+            .withMethods( "read" )
+            .withRepositoryGroupId( "public" )
+            .save();
+    }
+
     private Roles roles()
     {
         return client().getSubsystem( Roles.class );
@@ -180,6 +192,11 @@ public class SecurityIT
     private Users users()
     {
         return client().getSubsystem( Users.class );
+    }
+
+    private Privileges privileges()
+    {
+        return client().getSubsystem( Privileges.class );
     }
 
 }
