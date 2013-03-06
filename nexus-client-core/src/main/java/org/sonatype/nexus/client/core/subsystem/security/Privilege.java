@@ -38,7 +38,7 @@ public interface Privilege
 
     Privilege withRepositoryId( String repositoryId );
 
-    String[] methods();
+    List<String> methods();
 
     Privilege withMethods( String... methods );
 

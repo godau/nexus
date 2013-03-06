@@ -13,7 +13,6 @@
 package org.sonatype.nexus.client.testsuite;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
@@ -216,7 +215,7 @@ public class SecurityIT
         // name is mangled on creation - "$name - ($method)"
         assertThat( privilege.name(), is( saved.name() ) );
 
-        assertThat( privilege.methods(), arrayContaining( "read" ) );
+        assertThat( privilege.methods(), contains( "read" ) );
         assertThat( privilege.repositoryGroupId(), is( "public" ) );
         assertThat( privilege.targetId(), is( targetId ) );
     }

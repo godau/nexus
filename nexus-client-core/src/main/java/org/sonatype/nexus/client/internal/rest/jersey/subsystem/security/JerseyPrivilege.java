@@ -293,14 +293,14 @@ public class JerseyPrivilege
     }
 
     @Override
-    public String[] methods()
+    public List<String> methods()
     {
         final String methods = getProperty( "method" );
         if ( methods == null )
         {
             return null;
         }
-        return methods.split( "," );
+        return Lists.newArrayList( methods.split( "," ) );
     }
 
     @Override
