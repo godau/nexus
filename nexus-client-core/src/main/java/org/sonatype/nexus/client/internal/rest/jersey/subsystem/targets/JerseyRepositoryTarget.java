@@ -91,7 +91,7 @@ public class JerseyRepositoryTarget
         try
         {
             return getNexusClient()
-                .serviceResource( "privileges_target" )
+                .serviceResource( "repo_targets" )
                 .post( RepositoryTargetResourceResponse.class, request )
                 .getData();
         }

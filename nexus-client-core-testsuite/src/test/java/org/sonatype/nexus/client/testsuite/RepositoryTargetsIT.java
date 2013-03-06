@@ -13,15 +13,19 @@
 package org.sonatype.nexus.client.testsuite;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 
 import java.util.Collection;
 
 import org.hamcrest.Matchers;
 import org.junit.Test;
+import org.sonatype.nexus.client.core.exception.NexusClientNotFoundException;
 import org.sonatype.nexus.client.core.subsystem.security.Privileges;
 import org.sonatype.nexus.client.core.subsystem.security.Role;
 import org.sonatype.nexus.client.core.subsystem.security.Roles;
@@ -56,71 +60,52 @@ public class RepositoryTargetsIT
         assertThat( direct.contentClass(), is( target.contentClass() ) );
     }
 
-    /*
     @Test
-    public void getRole()
+    public void createTarget()
     {
-        final Role role = roles().get( "ui-search" );
-        assertThat( role, is( notNullValue() ) );
-        assertThat( role.id(), is( "ui-search" ) );
+        final String id = "created";
+        createTarget( id, "test1", "test2" );
+
+        final RepositoryTarget target = targets().get( id );
+        assertThat( target.id(), is( id ) );
+        assertThat( target.name(), is( id + "name" ) );
+        assertThat( target.contentClass(), is( "maven2" ) );
+        assertThat( target.patterns(), contains( "test1", "test2" ) );
     }
 
-    @Test
-    public void createRole()
+    private RepositoryTarget createTarget( final String id, final String... patterns )
     {
-        final String roleId = testName.getMethodName();
-        roles().create( roleId )
-            .withName( roleId )
-            .withPrivilege( "19" )
+        return targets().create( id ).withName( id + "name" )
+            .withContentClass( "maven2" ).withPatterns( patterns )
             .save();
-        final Role role = roles().get( roleId );
-        assertThat( role, is( notNullValue() ) );
-        assertThat( role.id(), is( roleId ) );
-        assertThat( role.name(), is( roleId ) );
     }
 
     @Test
-    public void updateRole()
+    public void updateTarget()
     {
-        final String roleId = testName.getMethodName();
-        roles().create( roleId )
-            .withName( roleId )
-            .withPrivilege( "19" )
-            .save()
-            .withName( roleId + "Bar" )
-            .save();
-        final Role role = roles().get( roleId );
-        assertThat( role, is( notNullValue() ) );
-        assertThat( role.name(), is( roleId + "Bar" ) );
+        RepositoryTarget target = createTarget( "updateTarget", "pattern1", "pattern2" );
+
+        target.withName( "updatedTarget" ).addPattern( "pattern3" ).save();
+        target = targets().get( "updateTarget" );
+        assertThat( target.patterns(), hasItem( "pattern3" ) );
+        assertThat( target.name(), is( "updatedTarget" ) );
+    }
+
+    @Test(expected = NexusClientNotFoundException.class )
+    public void deleteTarget()
+    {
+        RepositoryTarget target = createTarget( "deleteTarget", "pattern1", "pattern2" ).remove();
+        // targets.get(...) is expected to throw 404
+        assertThat( targets().get( target.id() ), is( nullValue() ) );
     }
 
     @Test
-    public void deleteRole()
+    public void refreshTarget()
     {
-        final String roleId = testName.getMethodName();
-        final Role role = roles().create( roleId )
-            .withName( roleId )
-            .withPrivilege( "19" )
-            .save();
-        role.remove();
+        RepositoryTarget needsRefresh = createTarget( "deleteTarget", "pattern1", "pattern2" );
+        targets().get( needsRefresh.id() ).withPatterns( "differentPattern" ).save();
+        assertThat( needsRefresh.refresh().patterns(), contains( "differentPattern" ) );
     }
-
-    @Test
-    public void refreshRole()
-    {
-        final String roleId = testName.getMethodName();
-        Role role = roles().create( roleId )
-            .withName( roleId )
-            .withPrivilege( "19" )
-            .save()
-            .withName( roleId + "Bar" )
-            .refresh();
-        assertThat( role.id(), is( roleId ) );
-        role = roles().get( roleId );
-        assertThat( role, is( notNullValue() ) );
-        assertThat( role.name(), is( roleId ) );
-    }
-    */
 
     private RepositoryTargets targets()
     {
