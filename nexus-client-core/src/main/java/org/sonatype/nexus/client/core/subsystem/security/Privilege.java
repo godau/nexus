@@ -12,6 +12,7 @@
  */
 package org.sonatype.nexus.client.core.subsystem.security;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.sonatype.nexus.client.core.subsystem.Entity;
@@ -49,4 +50,5 @@ public interface Privilege
 
     Privilege withRepositoryGroupId( String groupId);
 
+    Collection<Privilege> create();
 }

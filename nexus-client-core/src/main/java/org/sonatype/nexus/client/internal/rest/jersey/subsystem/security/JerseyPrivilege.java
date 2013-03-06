@@ -14,10 +14,15 @@ package org.sonatype.nexus.client.internal.rest.jersey.subsystem.security;
 
 import static org.sonatype.nexus.client.internal.rest.jersey.subsystem.security.JerseyPrivileges.path;
 
+import java.util.Collection;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
+import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Throwables;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.UniformInterfaceException;
@@ -27,6 +32,7 @@ import org.sonatype.nexus.client.internal.rest.jersey.subsystem.JerseyEntitySupp
 import org.sonatype.nexus.client.rest.jersey.JerseyNexusClient;
 import org.sonatype.nexus.rest.model.PrivilegeResource;
 import org.sonatype.nexus.rest.model.PrivilegeResourceRequest;
+import org.sonatype.security.rest.model.PrivilegeListResourceResponse;
 import org.sonatype.security.rest.model.PrivilegeProperty;
 import org.sonatype.security.rest.model.PrivilegeStatusResource;
 import org.sonatype.security.rest.model.PrivilegeStatusResourceResponse;
@@ -83,16 +89,83 @@ public class JerseyPrivilege
     }
 
     @Override
+    public String id()
+    {
+        return settings().getId();
+    }
+
+    /**
+     * Privileges are immutable, you cannot update a privilege.
+     * Creating "one" privilege will return many privileges depending on the methods set,
+     * so this method has to break the "fluent contract" and return null.
+     *
+     * @return always null.
+     * @see #create()
+     * @deprecated use #create() instead.
+     */
+    @Override
+    public synchronized Privilege save()
+    {
+        super.save();
+        return null;
+    }
+
+    /**
+     * Create privileges based on this instance.
+     *
+     * @return the privileges created for this instance.
+     */
+    public synchronized Collection<Privilege> create()
+    {
+        if ( shouldCreate() )
+        {
+            final PrivilegeResourceRequest request = new PrivilegeResourceRequest();
+            request.setData( convert() );
+            try
+            {
+                final List<PrivilegeStatusResource> resources = getNexusClient()
+                    .serviceResource( "privileges_target" )
+                    .post( PrivilegeListResourceResponse.class, request )
+                    .getData();
+
+                return Collections2.transform(resources, new Function<PrivilegeStatusResource, Privilege>()
+                {
+                    @Nullable
+                    @Override
+                    public Privilege apply( @Nullable final PrivilegeStatusResource resource )
+                    {
+                        return new JerseyPrivilege( getNexusClient(), resource.getId(), resource );
+                    }
+                });
+            }
+            catch ( UniformInterfaceException e )
+            {
+                throw getNexusClient().convert( e );
+            }
+            catch ( ClientHandlerException e )
+            {
+                throw getNexusClient().convert( e );
+            }
+        }
+
+        throw new IllegalStateException( "This privilege was already loaded from Nexus." );
+    }
+
+    /**
+     * Creating "one" privilege will return many privileges depending on the methods set.
+     * @return always null
+     */
+    @Override
     protected PrivilegeStatusResource doCreate()
     {
         final PrivilegeResourceRequest request = new PrivilegeResourceRequest();
         request.setData( convert() );
         try
         {
-            return getNexusClient()
+            getNexusClient()
                 .serviceResource( "privileges_target" )
-                .post( PrivilegeStatusResourceResponse.class, request )
-                .getData();
+                .post( PrivilegeListResourceResponse.class, request );
+            return null;
         }
         catch ( UniformInterfaceException e )
         {
